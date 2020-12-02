@@ -19,17 +19,16 @@ function parse(s) {
     .map(c => parseInt(c))
 }
 
-function report(numbers) {
+function report(numbers, target) {
   numbers.sort((a, b) => a - b) // sort ascending
 
-  const target = 2020
   var lower = 0
   var upper = numbers.length - 1
   while(lower < upper) {
     const sum = numbers[lower] + numbers[upper]
     console.log(`sum ${sum}`)
     if(sum === target) {
-      return numbers[lower] * numbers[upper]
+      return [numbers[lower], numbers[upper]]
     }
     if(sum < target) {
       lower++
@@ -37,10 +36,22 @@ function report(numbers) {
       upper--
     }
   }
-  return `could not find ${target}`
+  return null
+}
+
+function report2(numbers) {
+  for(var i=0; i<numbers.length; i++) {
+    const target = 2020 - numbers[i]
+    const tail = numbers.slice(i + 1)
+    const foundSum = report(tail, target)
+    if(foundSum !== null) {
+      return numbers[i] * foundSum[0] * foundSum[1]
+    }
+  }
+  return null
 }
 
 (() => {
-  console.log(report(parse(example)))
-  console.log(report(parse(readFile('input1.txt'))))
+  console.log(report2(parse(example)))
+  console.log(report2(parse(readFile('input1.txt'))))
 })()
