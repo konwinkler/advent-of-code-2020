@@ -31,8 +31,9 @@ function parse(s) {
 function passwords(lines) {
   var counter = 0
   for(const line of lines) {
-    const occ = line.word.split(line.letter).length - 1
-    if(line.min <= occ && occ <= line.max) {
+    const a = (line.word[line.min - 1] === line.letter)
+    const b = (line.word[line.max - 1] === line.letter)
+    if( (a && !b) || (!a && b) ) {
       counter++
     }
   }
