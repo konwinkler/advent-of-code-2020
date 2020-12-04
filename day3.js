@@ -24,11 +24,12 @@ function parse(s) {
   return lines;
 }
 
-function trees(map) {
+function trees(map, stepsRight, stepsDown) {
   let countTrees = 0;
   const width = map[0].length;
-  for (let down = 1; down < map.length; down++) {
-    const right = (down * 3) % width;
+  for (let i = 1; i < map.length && (i * stepsDown < map.length); i++) {
+    const down = i * stepsDown
+    const right = (i * stepsRight) % width;
     const position = map[down][right];
     // console.log(`pos ${position} at ${down}, ${right}`)
     if (position === "#") {
@@ -38,7 +39,17 @@ function trees(map) {
   return countTrees;
 }
 
+function otherSlopes(map) {
+  const counts = []
+  counts.push(trees(map, 1, 1))
+  counts.push(trees(map, 3, 1))
+  counts.push(trees(map, 5, 1))
+  counts.push(trees(map, 7, 1))
+  counts.push(trees(map, 1, 2))
+  return counts.reduce((total, e) => total * e, 1)
+}
+
 (() => {
-  console.log(trees(parse(example)));
-  console.log(trees(parse(readFile("input3.txt"))))
+  console.log(otherSlopes(parse(example)));
+  console.log(otherSlopes(parse(readFile("input3.txt"))))
 })();
