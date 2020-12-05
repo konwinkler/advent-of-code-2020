@@ -26,7 +26,7 @@ function getField(data, regex) {
     return matches[1]
   } else {
     if(!regex.exec("cid:123")) {
-      console.log(`could not find ${regex} in ${data}\n`)
+      // console.log(`could not find ${regex} in ${data}\n`)
     }
     return undefined
   }
@@ -37,14 +37,14 @@ function parse(s) {
   const passports = []
   for(const dataField of dataFields) {
     passports.push({
-      pid: getField(dataField, /pid:(#?[0-9]+)/g),
+      pid: getField(dataField, /pid:([0-9]{9})/g),
       cid: getField(dataField, /cid:([0-9]+)/g),
-      iyr: getField(dataField, /iyr:([0-9]+)/g),
-      eyr: getField(dataField, /eyr:([0-9]+)/g),
-      byr: getField(dataField, /byr:([0-9]+)/g),
-      hcl: getField(dataField, /hcl:((#[0-9a-g]+|\w))/g),
-      ecl: getField(dataField, /ecl:((#[0-9a-g]+|\w))/g),
-      hgt: getField(dataField, /hgt:([0-9]+(cm|in)?)/g),
+      iyr: getField(dataField, /iyr:([0-9]{4})/g),
+      eyr: getField(dataField, /eyr:([0-9]{4})/g),
+      byr: getField(dataField, /byr:([0-9]{4})/g),
+      hcl: getField(dataField, /hcl:((#[0-9a-f]{6}|\w))/g),
+      ecl: getField(dataField, /ecl:(amb|blu|brn|gry|grn|hzl|oth)/g),
+      hgt: getField(dataField, /hgt:([0-9]+(cm|in))/g), //TODO
     })
   }
   return passports;
@@ -63,18 +63,58 @@ function validPassports(passports) {
   ]
 
   let count = 0
+  let reason = ""
   for(const passport of passports) {
     let valid = true
     for(const requiredField of requiredFields) {
       if(passport[requiredField] === undefined) {
-        console.log(`${requiredField} is missing in ${JSON.stringify(passport)}`)
         valid = false
+        reason = "required fields missing " + requiredField
         break
+      }
+      if(requiredField === 'hgt') {
+        const height = parseInt(passport.hgt.match(/\d*/g))
+        if(passport.hgt.includes("cm") && (height < 150 || height > 193)) {
+          valid = false
+          reason = `height (cm) not valid ${height}`
+          break
+        }
+        if(passport.hgt.includes("in") && (height < 59 || height > 76)) {
+          valid = false
+          reason = `height (in) not valid ${height}`
+          break
+        }
+      }
+      if(requiredField === "eyr" ) {
+        const year = parseInt(passport.eyr)
+        if(year < 2020 || year > 2030) {
+          valid = false
+          reason = `eyr not valid ${year}`
+          break
+        }
+      }
+      if(requiredField === "iyr" ) {
+        const year = parseInt(passport.iyr)
+        if(year < 2010 || year > 2020) {
+          valid = false
+          reason = `iyr not valid ${year}`
+          break
+        }
+      }
+      if(requiredField === "byr" ) {
+        const year = parseInt(passport.byr)
+        if(year < 1920 || year > 2002) {
+          valid = false
+          reason = `byr not valid ${year}`
+          break
+        }
       }
     }
     if(valid) {
       // console.log(`found a valid one`)
       count++
+    } else {
+      console.log(`${reason} in ${JSON.stringify((passport))}`)
     }
   }
   return count
