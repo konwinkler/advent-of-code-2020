@@ -33,7 +33,7 @@ function decode(code) {
   return result
 }
 
-function highestID(boardingPasses) {
+function emptySeat(boardingPasses) {
   const ids = []
   for(const boardingPass of boardingPasses) {
     const row = decode(boardingPass.rowCode)
@@ -41,10 +41,20 @@ function highestID(boardingPasses) {
     console.log(`${row}, ${column}`)
     ids.push(row * 8 + column)
   }
-  return ids.reduce((max, e) => Math.max(max, e), 0)
+
+  ids.sort((a, b) => (a - b))
+
+  const missing = []
+  for(let i=0; i<ids.length; i++) {
+    const id = ids[i]
+    if(!ids.includes(id + 1) && ids.includes(id + 2)) {
+      missing.push(id + 1)
+    }
+  }
+  return missing
 }
 
 (() => {
-  console.log(highestID(parse(example)));
-  console.log(highestID(parse(readFile("input5.txt"))))
+  // console.log(highestID(parse(example)));
+  console.log(emptySeat(parse(readFile("input5.txt"))))
 })();
