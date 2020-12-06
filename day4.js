@@ -38,7 +38,7 @@ function getField(data, regex) {
   if(matches !== null) {
     return matches[1]
   } else {
-    console.log(`could not find ${regex} in ${data}\n`)
+    // console.log(`could not find ${regex} in ${data}\n`)
     return undefined
   }
 }
@@ -53,7 +53,7 @@ function parse(s) {
       eyr: getField(dataField, /eyr:([0-9]{4})/g),
       hcl: getField(dataField, /hcl:(#[0-9a-f]{6})/g),
       ecl: getField(dataField, /ecl:(amb|blu|brn|gry|grn|hzl|oth)/g),
-      pid: getField(dataField, /pid:([0-9]{9})/g),
+      pid: getField(dataField, /pid:([0-9]*)/g),
       hgt: getField(dataField, /hgt:([0-9]+(cm|in))/g),
       // cid: getField(dataField, /cid:([0-9]+)/g),
     })
@@ -120,6 +120,14 @@ function validPassports(passports) {
         if(year < 1920 || year > 2002) {
           valid = false
           reason = `byr not valid ${year}`
+          break
+        }
+      }
+      if(requiredField === "pid" ) {
+        if(passport.pid.length !== 9) {
+          valid = false
+          reason = `wrong length pid ${passport.pid}`
+          console.log(`${reason} in ${JSON.stringify((passport))}`)
           break
         }
       }
