@@ -174,7 +174,7 @@ hcl:#18171d
 
 iyr:2012 eyr:2028 hgt:190cm ecl:blu byr:1971
 hcl:#6b5442 pid:758307028
-hgt
+
 cid:186
 ecl:amb eyr:2027
 iyr:2019 hcl:#c0946f hgt:165cm pid:904275084 byr:1997
