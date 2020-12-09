@@ -54,12 +54,51 @@ const accAtStop = (instructions) => {
         break
     }
     if(executedLines.has(currentLine)) {
-      return accumulator
+      return {
+        state: "infinite loop",
+        accumulator
+      }
+    }
+    if(currentLine === instructions.length) {
+      return {
+        state: "terminated",
+        accumulator
+      }
+    }
+  }
+}
+
+const copy = (e) => {
+  return JSON.parse(JSON.stringify(e))
+}
+
+const findInstruction = (instructions) => {
+  // nop to jump
+  for(let i=0; i<instructions.length; i++) {
+    if(instructions[i].operation === "nop") {
+      const modifiedInstructions = copy(instructions)
+      modifiedInstructions[i].operation = "jmp"
+      const result = accAtStop(modifiedInstructions)
+      if(result.state === "terminated") {
+        return result.accumulator
+      }
+    }
+  }
+
+  // jmp to nop
+  for(let i=0; i<instructions.length; i++) {
+    if(instructions[i].operation === "jmp") {
+      const modifiedInstructions = copy(instructions)
+      modifiedInstructions[i].operation = "nop"
+      const result = accAtStop(modifiedInstructions)
+      if(result.state === "terminated") {
+        return result.accumulator
+      }
     }
   }
 }
 
 (() => {
-  console.log(accAtStop(parse(example)))
-  console.log(accAtStop(parse(readFile("input8.txt"))))
+  console.log(findInstruction(parse(example)))
+  console.log(findInstruction(parse(readFile("input8.txt"))))
 })();
