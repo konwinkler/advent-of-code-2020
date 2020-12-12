@@ -23,10 +23,6 @@ const parse = (s) => {
     return s.split("\n").filter(e => e !== "")
 }
 
-const occupied = (map, x, y) => {
-    return map[x][y] === "#"
-}
-
 const modifiers = [
     [-1, -1],
     [0, -1],
@@ -38,6 +34,23 @@ const modifiers = [
     [1, 1]
 ]
 
+const occupied = (map, x, xModifier, y, yModifier) => {
+    // apply modifiers until either an occupied seat is found or the end of the map is reached
+    if (x + xModifier < 0 || x + xModifier >= map.length) {
+        return false
+    }
+    if (y + yModifier < 0 || y + yModifier >= map[0].length) {
+        return false
+    }
+    if (map[x + xModifier][y + yModifier] === "#") {
+        return true
+    }
+    if (map[x + xModifier][y + yModifier] === "L") {
+        return false
+    }
+    return occupied(map, x + xModifier, xModifier, y + yModifier, yModifier)
+}
+
 const applyRules = (map, x, y) => {
     // If a seat is empty (L) and there are no occupied seats adjacent to it, the seat becomes occupied.
     // If a seat is occupied (#) and four or more seats adjacent to it are also occupied, the seat becomes empty.
@@ -48,7 +61,7 @@ const applyRules = (map, x, y) => {
             return "."
         case "L":
             for (const [xModifier, yModifier] of modifiers) {
-                if (map[x + xModifier] && map[x + xModifier][y + yModifier] === "#") {
+                if (occupied(map, x, xModifier, y, yModifier)) {
                     return "L"
                 }
             }
@@ -56,10 +69,10 @@ const applyRules = (map, x, y) => {
         case "#":
             let counter = 0
             for (const [xModifier, yModifier] of modifiers) {
-                if (map[x + xModifier] && map[x + xModifier][y + yModifier] === "#") {
+                if (occupied(map, x, xModifier, y, yModifier)) {
                     counter++
                 }
-                if (counter >= 4) {
+                if (counter >= 5) {
                     return "L"
                 }
             }
@@ -76,6 +89,8 @@ const countSeatsAfterChaos = (initialArrangement) => {
     let currentGeneration = initialArrangement
     let changeSeats = true
     while (changeSeats) {
+        // console.log(currentGeneration)
+        // console.log()
         const previousState = JSON.stringify(currentGeneration)
         const nextGeneration = []
         for (let i = 0; i < currentGeneration.length; i++) {
