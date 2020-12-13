@@ -24,49 +24,39 @@ const parse = (s) => {
     })
 }
 
-const turnRight = (state) => {
-    const newState = {...state}
-    switch (state.direction) {
-        case "E":
-            newState.direction =  "S"
-            break
-        case "N":
-            newState.direction =  "E"
-            break
-        case "W":
-            newState.direction =  "N"
-            break
-        case "S":
-            newState.direction =  "W"
-            break
-    }
-    return newState
+const rotateLeft = (waypoint) => {
+    const newWaypoint = {...waypoint}
+    newWaypoint.north = waypoint.east
+    newWaypoint.east = -waypoint.north
+    return newWaypoint
 }
 
-const turnLeft = (state) => {
-    const newState = {...state}
-    switch (state.direction) {
-        case "E":
-            newState.direction =  "N"
-            break
-        case "N":
-            newState.direction =  "W"
-            break
-        case "W":
-            newState.direction =  "S"
-            break
-        case "S":
-            newState.direction =  "E"
-            break
-    }
-    return newState
+const rotateRight = (waypoint) => {
+    const newWaypoint = {...waypoint}
+    newWaypoint.east = waypoint.north
+    newWaypoint.north = -waypoint.east
+    return newWaypoint
 }
+
+/*
+Action N means to move the waypoint north by the given value.
+Action S means to move the waypoint south by the given value.
+Action E means to move the waypoint east by the given value.
+Action W means to move the waypoint west by the given value.
+Action L means to rotate the waypoint around the ship left (counter-clockwise) the given number of degrees.
+Action R means to rotate the waypoint around the ship right (clockwise) the given number of degrees.
+Action F means to move forward to the waypoint a number of times equal to the given value.
+The waypoint starts 10 units east and 1 unit north relative to the ship. The waypoint is relative to the ship; that is, if the ship moves, the waypoint moves with it.
+ */
 
 const distance = (instructions) => {
-    let state = {
+    let ship = {
         east: 0,
-        north: 0,
-        direction: "E"
+        north: 0
+    }
+    let waypoint = {
+        east: 10,
+        north: 1
     }
 
     // all values are positive integers
@@ -74,44 +64,34 @@ const distance = (instructions) => {
     for (const instruction of instructions) {
         switch (instruction.action) {
             case "E":
-                state.east += instruction.value
+                waypoint.east += instruction.value
                 break
             case "N":
-                state.north += instruction.value
+                waypoint.north += instruction.value
                 break
             case "W":
-                state.east -= instruction.value
+                waypoint.east -= instruction.value
                 break
             case "S":
-                state.north -= instruction.value
+                waypoint.north -= instruction.value
                 break
             case "F":
-                switch (state.direction) {
-                    case "E":
-                        state.east += instruction.value
-                        break
-                    case "N":
-                        state.north += instruction.value
-                        break
-                    case "W":
-                        state.east -= instruction.value
-                        break
-                    case "S":
-                        state.north -= instruction.value
-                        break
+                for (let i = 0; i < instruction.value; i++) {
+                    ship.east += waypoint.east
+                    ship.north += waypoint.north
                 }
                 break
             case "R":
                 let turningRight = instruction.value
                 while (turningRight > 0) {
-                    state = turnRight(state)
+                    waypoint = rotateRight(waypoint)
                     turningRight -= 90
                 }
                 break
             case "L":
                 let turningLeft = instruction.value
                 while (turningLeft > 0) {
-                    state = turnLeft(state)
+                    waypoint = rotateLeft(waypoint)
                     turningLeft -= 90
                 }
                 break
@@ -119,7 +99,7 @@ const distance = (instructions) => {
     }
 
     // manhattan distance from (0, 0) to state
-    const distance = Math.abs(state.east) + Math.abs(state.north)
+    const distance = Math.abs(ship.east) + Math.abs(ship.north)
 
     return distance
 }
