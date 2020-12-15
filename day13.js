@@ -41,6 +41,8 @@ const smallestDivisor = (n) => {
     return n
 }
 
+let loops = 0
+
 const earliestTimestamp = (schedule) => {
     let increment = 1
     let start = 0
@@ -57,6 +59,7 @@ const earliestTimestamp = (schedule) => {
 
     let currentTimestamp = start
     while (true) {
+        loops++
         if (allBusesInOrder(currentTimestamp, schedule)) {
             return currentTimestamp
         }
@@ -64,5 +67,7 @@ const earliestTimestamp = (schedule) => {
     }
 }
 
-console.log(earliestTimestamp(parse(readFile("example13.txt"))))
+// console.log(earliestTimestamp(parse(readFile("example13.txt"))))
+// console.log(loops)
 console.log(earliestTimestamp(parse(readFile("input13.txt"))))
+console.log(loops)
