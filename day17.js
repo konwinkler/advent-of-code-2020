@@ -6,7 +6,7 @@ const readFile = (fileName) => {
 
 /* Cube structure
  * {
- *  x, y, z
+ *  x, y, z, w
  * }
  */
 
@@ -28,7 +28,8 @@ function parse(file) {
                 initialCubes.push(encode({
                     x,
                     y,
-                    z: 0
+                    z: 0,
+                    w: 0
                 }))
             }
         }
@@ -41,12 +42,15 @@ function findNeighbors(cube) {
     for (let x = -1; x < 2; x++) {
         for (let y = -1; y < 2; y++) {
             for (let z = -1; z < 2; z++) {
-                if (x !== 0 || y !== 0 || z !== 0) {
-                    neighbors.push({
-                        x: cube.x + x,
-                        y: cube.y + y,
-                        z: cube.z + z,
-                    })
+                for (let w = -1; w < 2; w++) {
+                    if (x !== 0 || y !== 0 || z !== 0 || w !== 0) {
+                        neighbors.push({
+                            x: cube.x + x,
+                            y: cube.y + y,
+                            z: cube.z + z,
+                            w: cube.w + w
+                        })
+                    }
                 }
             }
         }
@@ -63,6 +67,10 @@ function applyRules(cube, active, map) {
         if (neighborActive) {
             countActive++
         }
+        if (countActive > 3) {
+            return false
+        }
+
     }
     if (active) {
         if (countActive > 1 && countActive < 4) {
