@@ -48,7 +48,7 @@ function execute(tokens) {
         let newTokens
         let modified = false
 
-        for (let i = 0; !modified && i < tokens.length - 2; i++) {
+        for (let i = tokens.length - 3; !modified && i >= 0; i--) {
             const [beginning, element, end] = tokens.slice(i)
             if (beginning.value === "(" && end.value === ")") {
                 const result = {
@@ -62,12 +62,26 @@ function execute(tokens) {
             }
         }
 
-        for (let i = 0; !modified && i < tokens.length - 2; i++) {
+        for (let i = tokens.length - 3; !modified && i >= 0; i--) {
             let [first, second, third] = tokens.slice(i)
-            if (first.type === "number" && second.type === "operator" && third.type === "number") {
+            if (first.type === "number" && second.type === "operator" && second.value === "+" && third.type === "number") {
                 const result = {
                     type: "number",
-                    value: second.value === "+" ? first.value + third.value : first.value * third.value
+                    value: first.value + third.value
+                }
+                const prefix = tokens.slice(0, i)
+                const suffix = tokens.slice(i + 3)
+                newTokens = [...prefix, result, ...suffix]
+                modified = true
+            }
+        }
+
+        for (let i = tokens.length - 3; !modified && i >= 0; i--) {
+            let [first, second, third] = tokens.slice(i)
+            if (first.type === "number" && second.type === "operator" && second.value === "*" && third.type === "number") {
+                const result = {
+                    type: "number",
+                    value:  first.value * third.value
                 }
                 const prefix = tokens.slice(0, i)
                 const suffix = tokens.slice(i + 3)
@@ -95,4 +109,4 @@ function parse(fileName) {
     return results.flat().map(e => e.value).reduce((sum, e) => sum + e, 0);
 }
 
-console.log(parse("input18.txt"))
+console.log(parse("example18.txt"))
